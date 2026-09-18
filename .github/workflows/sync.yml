@@ -1,0 +1,56 @@
+name: meta-sheets-sync
+
+on:
+  schedule:
+    - cron: "0 5 2 * *"   # 2. den v mesiaci 05:00 UTC -> sync za predchadzajuci mesiac
+  workflow_dispatch:
+    inputs:
+      since:
+        description: "Start date YYYY-MM-DD (prazdne = predchadzajuci mesiac)"
+        required: false
+      until:
+        description: "End date YYYY-MM-DD (prazdne = vcera, plati len so since)"
+        required: false
+      client:
+        description: "Len jeden klient (presny nazov z clients.json), prazdne = vsetci"
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install -r requirements.txt
+
+      - name: Sync Meta Ads -> Google Sheets
+        env:
+          META_ACCESS_TOKEN: ${{ secrets.META_TOKEN }}
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.SERVICE_ACC }}
+          MS_CLIENT_ID: ${{ secrets.MS_CLIENT_ID }}
+          MS_CLIENT_SECRET: ${{ secrets.MS_CLIENT_SECRET }}
+          MS_REFRESH_TOKEN: ${{ secrets.MS_REFRESH_TOKEN }}
+          MS_DEV_TOKEN: ${{ secrets.MS_DEV_TOKEN }}
+          GH_PAT: ${{ secrets.GH_PAT }}
+        run: |
+          python sync.py \
+            ${{ inputs.since && format('--since {0}', inputs.since) || '' }} \
+            ${{ inputs.until && format('--until {0}', inputs.until) || '' }} \
+            ${{ inputs.client && format('--client "{0}"', inputs.client) || '' }}
+
+      # GitHub vypina scheduled workflows po 60 dnoch bez commitov v repe,
+      # prazdny commit po kazdom uspesnom scheduled behu to drzi nazive.
+      - name: Keepalive commit
+        if: always() && github.event_name == 'schedule'
+        run: |
+          git config user.name "sync-bot"
+          git config user.email "actions@github.com"
+          git commit --allow-empty -m "keepalive: monthly sync ran"
+          git push

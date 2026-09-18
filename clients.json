@@ -1,0 +1,42 @@
+[
+  {
+    "name": "PRIKLAD Eshop klient (Meta, adset level)",
+    "sheet_id": "SHEET_ID_Z_URL",
+    "tab": "Sheet1",
+    "act_id": "act_000000000000000",
+    "level": "adset",
+    "action_report_time": null,
+    "columns": [
+      "date", "year_month", "campaign_name", "adset_name",
+      "impressions", "inline_link_clicks", "inline_link_click_ctr", "spend",
+      "action:offsite_conversion.fb_pixel_purchase",
+      "action_value:offsite_conversion.fb_pixel_purchase"
+    ]
+  },
+  {
+    "name": "PRIKLAD Lead-gen klient (Meta, ad level, custom konverzie)",
+    "sheet_id": "SHEET_ID_Z_URL",
+    "tab": "Sheet1",
+    "act_id": "act_000000000000000",
+    "level": "ad",
+    "action_report_time": "conversion",
+    "columns": [
+      "year_month", "date", "campaign_name", "adset_name", "ad_name",
+      "spend", "impressions", "inline_link_clicks",
+      "action:offsite_conversion.custom.000000000000000",
+      "action:offsite_conversion.fb_pixel_lead"
+    ]
+  },
+  {
+    "name": "PRIKLAD Microsoft Ads klient (mesacne riadky)",
+    "source": "bing",
+    "sheet_id": "SHEET_ID_Z_URL",
+    "tab": "Sheet1",
+    "account_id": "000000000",
+    "columns": [
+      "year_month", "campaign_name", "adgroup_name",
+      "impressions", "clicks", "spend", "ctr", "cpc",
+      "conversions", "conversion_rate"
+    ]
+  }
+]
