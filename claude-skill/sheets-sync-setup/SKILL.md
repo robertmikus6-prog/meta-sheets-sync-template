@@ -1,6 +1,6 @@
 ---
 name: sheets-sync-setup
-description: Nastaví náhradu Dataslayera pre PPC špecialistu - GitHub Actions cron (zadarmo, bez AI kreditov), ktorý mesačne syncuje Meta Ads a Microsoft Ads dáta do Google Sheets napojených na Looker Studio, v identickom formáte ako Dataslayer. Prevedie celým setupom - z DataslayerQueries tabu vygeneruje clients.json, vytvorí repo z template, nazdieľa sheety na service account, spustí backfill a overí čísla proti účtom. Použi vždy keď user povie "nastav mi sheets sync", "nahraď dataslayer", "sheets sync pre klienta", "pridaj klienta do sheets syncu", "napoj sheet na github sync", alebo chce automatizovať Meta/Microsoft Ads dáta do Google Sheets / Looker Studio.
+description: Nastaví náhradu Dataslayera pre PPC špecialistu - GitHub Actions cron (zadarmo, bez AI kreditov), ktorý mesačne syncuje Meta Ads a Microsoft Ads dáta do Google Sheets napojených na Looker Studio, v identickom formáte ako Dataslayer. Prevedie celým setupom - z DataslayerQueries tabu vygeneruje clients.json, vytvorí repo z template, nazdieľa sheety na service account, spustí backfill a overí čísla proti účtom. Vždy začni tým, že si vypýtaš linky na všetky sheety, ktoré má user aktualizovať. Použi vždy keď user povie "nastav mi sheets sync", "nahraď dataslayer", "sheets sync pre klienta", "pridaj klienta do sheets syncu", "napoj sheet na github sync", alebo chce automatizovať Meta/Microsoft Ads dáta do Google Sheets / Looker Studio.
 ---
 
 # sheets-sync-setup
@@ -18,8 +18,17 @@ Nikdy nepíš em dash (—). Komunikuj slovensky, kód anglicky.
 
 ## Postup
 
+### 0. Najprv si vypýtaj VŠETKY sheety (nič iné nerob skôr)
+Prvá správa userovi, ešte pred akýmkoľvek tool callom, je jedna otázka:
+
+> "Pošli mi linky na **všetky** Google Sheety, ktoré chceš aktualizovať automaticky (každý sheet, ktorý dnes plní Dataslayer a je napojený na Looker Studio), ideálne s názvom klienta pri každom linku. Môže ich byť koľkokoľvek, spracujem ich naraz."
+
+Ak user pošle jeden link a pýta sa, či to stačí, opýtaj sa ešte raz, či nemá ďalšie: cieľom je vidieť celý rozsah naraz, aby si vytvoril jeden repo s kompletným `clients.json`, nie pridával klientov po jednom.
+
+Keď máš linky, prejdi VŠETKY (krok 1) a ešte pred akoukoľvek zmenou ukáž userovi **prehľadovú tabuľku**: klient | zdroj (Meta/Bing) | act/account ID | úroveň (adset/ad/mesačné) | metriky | posledný Dataslayer refresh. Upozorni na sheety, kde `DataslayerQueries` tab chýba alebo má iný zdroj ako facebook/bing (tie sync nevie, povedz to rovno). Až po potvrdení prehľadu pokračuj krokom 2.
+
 ### 1. Zmapuj sheety
-Pre každý sheet, ktorý user pošle:
+Pre každý sheet z kroku 0:
 1. `gws_call sheets spreadsheets.values get` range `DataslayerQueries!A1:AP10` → riadok 2+ obsahuje query. Vyčítaj: `Data source` (facebook / bing), `Accounts/views` (act_id alebo account_id), `Metrics`, `Dimensions`, `Special settings` (`action_report_time`), `Sheet name`.
 2. Prečítaj hlavičku cieľového tabu (`Sheet1!A1:Z1`) a over poradie stĺpcov.
 3. Zostav objekt do `clients.json` podľa mapovacej tabuľky v README template (sekcia 5). Kľúčové pravidlá:
